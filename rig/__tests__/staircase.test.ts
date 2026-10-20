@@ -96,11 +96,12 @@ describe('the staircase records turning points', () => {
 });
 
 describe('the floor is a hard limit, and it is reported', () => {
-  it('never goes below the floor', () => {
+  it('never goes below the floor, and abandons the run when it reaches it', () => {
     let s = begin(cfg);
     for (let i = 0; i < 60; i++) s = answer(s, cfg, true);
     expect(s.value).toBeGreaterThanOrEqual(cfg.floor);
-    expect(s.floorHits).toBeGreaterThan(0);
+    expect(s.floorHits).toBeGreaterThanOrEqual(1);
+    expect(s.done).toBe(true);
   });
 
   it('refuses to call a bottomed-out run valid', () => {
@@ -109,6 +110,39 @@ describe('the floor is a hard limit, and it is reported', () => {
     const v = validity(s, cfg);
     expect(v.ok).toBe(false);
     if (!v.ok) expect(v.reason).toContain('bottomed out');
+  });
+
+  /**
+   * The bug the end-to-end test found, written down so it cannot come back.
+   *
+   * A perfect observer drives the staircase to the floor and holds it there.
+   * It never reverses, so the reversal count is never reached — and the first
+   * version of this instrument therefore ran to `maxTrials`, which was 3000.
+   * Three thousand clicks, for a person, with no end. The library test missed
+   * it because it exercised `maxTrials: 50`, a number chosen to be convenient
+   * for the test rather than the number the instrument actually shipped with.
+   */
+  it('ends a session with a perfect observer in a human-sized number of trials', () => {
+    const s = simulate(cfg, 1, () => 0); // always correct
+    expect(s.done).toBe(true);
+    expect(s.history.length).toBeLessThan(40);
+    expect(s.reversals.length).toBe(0);
+    const v = validity(s, cfg);
+    expect(v.ok).toBe(false);
+  });
+
+  it('never asks a person for more than the trial cap, whatever happens', () => {
+    // An observer who is right exactly often enough to never reverse and
+    // never bottom out. The trial cap is the only thing that can end this.
+    let s = begin(cfg);
+    let n = 0;
+    while (!s.done && n < 5000) {
+      s = answer(s, cfg, n % 2 === 0);
+      n++;
+    }
+    expect(s.done).toBe(true);
+    expect(s.history.length).toBeLessThanOrEqual(cfg.maxTrials);
+    expect(cfg.maxTrials).toBeLessThanOrEqual(240);
   });
 
   it('stops a staircase that cannot converge, and says so', () => {

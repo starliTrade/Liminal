@@ -34,6 +34,23 @@ type Session = {
   readonly brighterOn: 'left' | 'right';
 };
 
+/**
+ * The refusal, in the language the person reading it actually speaks.
+ *
+ * A refusal is the instrument working. If it reads as a crash, the person
+ * will try to click through it — and a run that was correctly thrown away
+ * ends up in the record anyway.
+ */
+function refusal(reason: string): string {
+  if (reason.startsWith('bottomed out')) {
+    return 'پله به کف ابزار خورد. یعنی آستانهٔ تو پایین‌تر از چیزی است که این شکل می‌تواند بسنجد. «حدس اولیه» را کمتر کن و دوباره شروع کن.';
+  }
+  if (reason.startsWith('did not converge')) {
+    return 'نشست به ۱۶ بازگشت نرسید. یعنی پله هیچ‌وقت تصمیم نگرفت کجا بایستد — یا جواب‌ها تصادفی بوده، یا دامنه اشتباه است.';
+  }
+  return reason;
+}
+
 const REFERENCE = FROM_ARCHIVE.canvasL;
 /** Both patches sit this far above the canvas, so both are visible and neither leaks. */
 const BASE = 0.03;
@@ -128,9 +145,14 @@ export function TwoAFC() {
         ) : (
           <div className="refused">
             <b>ابزار عدد نداد.</b>
-            <p>{report.ok ? 'خوانش خالی' : report.reason}</p>
+            <p>{report.ok ? 'خوانش خالی' : refusal(report.reason)}</p>
             <p>
-              این امتناع است، نه خرابی: نشستی که از کف ابزار بیرون زده باشد، عددی تولید نکرده.
+              این امتناع است، نه خرابی: نشستی که از دامنهٔ ابزار بیرون زده باشد، عددی تولید نکرده.
+              و ابزار ترجیح می‌دهد هیچ عددی ندهد تا اینکه یک عدد بی‌معنی بدهد.
+            </p>
+            <p className="caveat">
+              ابزار بعد از {stair.history.length} آزمایش خودش را متوقف کرد. هیچ‌وقت بیشتر از{' '}
+              {SHAPE.maxTrials} آزمایش از کسی نمی‌خواهد.
             </p>
           </div>
         )}

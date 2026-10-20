@@ -56,6 +56,22 @@ export type StaircaseConfig = {
   readonly averageLast: number;
   /** A hard stop, so a staircase that cannot converge says so instead of running forever. */
   readonly maxTrials: number;
+  /**
+   * How many times the staircase may want to go below the floor before the
+   * run is abandoned.
+   *
+   * This is not a nicety. An observer who is essentially perfect drives the
+   * staircase down and holds it there: it clamps, never reverses, and never
+   * reaches the reversal count — so without this the session runs to
+   * `maxTrials`. The end-to-end test found exactly that: 120 trials, zero
+   * reversals, no end in sight, with a human clicking every one of them.
+   *
+   * One hit is enough. The equilibrium sits at 0.854 of the truth and the
+   * floor at 0.005, so wanting to go below it means the threshold is far
+   * outside what this shape can measure. The instrument should say so and
+   * stop, not keep asking.
+   */
+  readonly maxFloorHits: number;
 };
 
 export type Trial = { readonly value: number; readonly correct: boolean };
@@ -119,7 +135,10 @@ export function answer(
     reversals,
     history,
     floorHits: state.floorHits + (clamped ? 1 : 0),
-    done: reversals.length >= config.reversals || history.length >= config.maxTrials,
+    done:
+      reversals.length >= config.reversals ||
+      history.length >= config.maxTrials ||
+      state.floorHits + (clamped ? 1 : 0) >= config.maxFloorHits,
   };
 }
 
@@ -189,6 +208,7 @@ export type Shape = {
   readonly up: number;
   readonly averageLast: number;
   readonly maxTrials: number;
+  readonly maxFloorHits: number;
 };
 
 /**
@@ -197,6 +217,11 @@ export type Shape = {
  *
  *   start 2 · step 0.15 · floor 0.005 · 16 reversals · average the last 8
  *   → 60 trials a session, 97.5% of runs valid, bias 1.125, one session ±23%.
+ *
+ * `maxTrials: 240` is four times the expected session. It is a human-facing
+ * bound, not a statistical one: whatever goes wrong, a person must never be
+ * asked to click more than ~240 times before the instrument admits it cannot
+ * measure.
  *
  * The starting point matters more than it looks: starting at 6× the expected
  * threshold spends 68 of ~109 trials walking down to the answer before it
@@ -210,7 +235,8 @@ export const SHAPE: Shape = {
   down: 2,
   up: 1,
   averageLast: 8,
-  maxTrials: 3000,
+  maxTrials: 240,
+  maxFloorHits: 1,
 };
 
 /** Turn a shape into an absolute configuration, given a rough guess at the answer. */
@@ -224,6 +250,7 @@ export function plan(shape: Shape, expected: number): StaircaseConfig {
     up: shape.up,
     averageLast: shape.averageLast,
     maxTrials: shape.maxTrials,
+    maxFloorHits: shape.maxFloorHits,
   };
 }
 

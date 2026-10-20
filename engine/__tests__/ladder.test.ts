@@ -42,6 +42,28 @@ function hexToOklchL(hex: string): number {
 }
 
 describe('the step', () => {
+  it('lives in ~16 of the 256 8-bit levels — the medium is coarse, the design is small', () => {
+    // Measured, not assumed. The whole nine-level ladder occupies a sliver of the
+    // display's range, and this is the fact that explains both the hex spread
+    // (1.07q-1.21q) and why exact oklch() is required.
+    const rgb = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+    const levels = LADDER.map(rgb);
+
+    for (const ch of [0, 1, 2]) {
+      const vals = levels.map((l) => l[ch]!);
+      const span = Math.max(...vals) - Math.min(...vals);
+      expect(span).toBeGreaterThan(10);
+      expect(span).toBeLessThan(24); // a small region of 0..255
+    }
+
+    // One step is worth about two 8-bit levels, which makes the half-step
+    // separator exactly one level: the smallest difference the medium can write.
+    const g = levels.map((l) => l[1]!);
+    const perStep = (Math.max(...g) - Math.min(...g)) / (SIZE - 1);
+    expect(perStep).toBeGreaterThan(1.5);
+    expect(perStep).toBeLessThan(2.5);
+  });
+
   it('is above the quantum — below it the pair is invisible', () => {
     expect(STEP).toBeGreaterThan(Q);
   });

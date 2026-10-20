@@ -6,6 +6,6 @@ export default defineConfig({
   server: { host: '0.0.0.0', port: 4000 },
   test: {
     environment: 'node',
-    include: ['rig/**/*.test.{ts,tsx}'],
+    include: ['rig/**/*.test.{ts,tsx}', 'engine/**/*.test.ts'],
   },
 });

@@ -17,5 +17,5 @@
     "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": ["rig", "vite.config.ts"]
+  "include": ["rig", "engine", "vite.config.ts"]
 }

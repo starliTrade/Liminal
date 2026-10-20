@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { TwoAFC } from './instruments/TwoAFC';
 import { Phenomenon } from './instruments/Phenomenon';
+import { Comparator } from './instruments/Comparator';
 import { FROM_ARCHIVE } from './lib/foundation';
 
-type Instrument = 'twoafc' | 'phenomenon';
+type Instrument = 'twoafc' | 'phenomenon' | 'comparator';
 
 const TABS: ReadonlyArray<{ id: Instrument; label: string; hint: string }> = [
   { id: 'twoafc', label: 'آستانه', hint: 'دو گزینه، انتخاب اجباری، پله‌ای' },
   { id: 'phenomenon', label: 'پدیده', hint: 'آیا این پدیده واقعاً اینجا رخ می‌دهد؟' },
+  { id: 'comparator', label: 'چشم', hint: 'کور · برگشت · تخریب — پروتکل تست چشمی' },
 ];
 
 export function App() {
@@ -37,7 +39,9 @@ export function App() {
         </div>
       </header>
       <main className="rig-body">
-        {tab === 'twoafc' ? <TwoAFC /> : <Phenomenon />}
+        {tab === 'twoafc' && <TwoAFC />}
+        {tab === 'phenomenon' && <Phenomenon />}
+        {tab === 'comparator' && <Comparator />}
       </main>
     </div>
   );

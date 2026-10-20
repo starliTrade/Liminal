@@ -98,3 +98,79 @@ code { font-family: var(--mono); font-size: 0.92em; color: oklch(0.78 0.0112 0);
 
 .ladder { display: flex; height: 110px; border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
 .ladder > div { flex: 1; }
+
+/* ── comparator: the eye protocol's instrument ───────────────────────── */
+
+.chip {
+  background: none; border: 1px solid var(--rule); color: var(--dim);
+  padding: 5px 13px; border-radius: 8px; cursor: pointer;
+  font: inherit; font-size: 12px;
+}
+.chip.on { color: var(--ink); border-color: oklch(0.46 0.0112 0); background: oklch(0.17 0.0112 0); }
+
+.cmp { max-width: 880px; margin: 0 auto; padding: 40px 22px 80px; }
+.cmp h2 { font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+.cmp h3 { font-size: 14px; font-weight: 600; margin: 0 0 10px; }
+.cmp-lede { color: var(--dim); margin: 0 0 26px; }
+.cmp-lede b { color: oklch(0.8 0.0112 0); }
+
+.cmp-field { display: block; margin: 0 0 22px; }
+.cmp-field > span { display: block; color: var(--dim); font-size: 12px; margin-bottom: 8px; }
+.cmp-field textarea {
+  width: 100%; background: oklch(0.16 0.0112 0); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 10px; padding: 11px 13px;
+  font: inherit; font-size: 13px; resize: vertical;
+}
+.cmp-row { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.cmp-go {
+  background: oklch(0.2 0.0112 0); border: 1px solid oklch(0.34 0.0112 0);
+  color: var(--ink); padding: 9px 22px; border-radius: 10px;
+  cursor: pointer; font: inherit; font-size: 13px;
+}
+.cmp-go:disabled { color: var(--faint); border-color: var(--rule); cursor: not-allowed; }
+
+/* The record button. Quieter than .cmp-go: it does not advance the test,
+   it only stops the verdict from being a memory. */
+.cmp-copy {
+  background: transparent; border: 1px solid var(--rule);
+  color: var(--dim); padding: 9px 18px; border-radius: 10px;
+  cursor: pointer; font: inherit; font-size: 13px; margin-inline-end: 8px;
+}
+.cmp-copy:hover { color: var(--ink); border-color: oklch(0.34 0.0112 0); }
+
+.cmp-question { text-align: center; color: var(--dim); margin: 0 0 18px; font-size: 15px; }
+.cmp-hint { color: var(--faint); font-size: 12px; }
+
+.cmp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.cmp-cell { display: flex; flex-direction: column; gap: 10px; }
+.cmp-panel {
+  border-radius: 12px; padding: 26px; min-height: 240px;
+  display: flex; align-items: center; justify-content: center;
+}
+.cmp-stage { width: 100%; display: flex; align-items: center; justify-content: center; }
+.cmp-card {
+  width: 100%; max-width: 220px; aspect-ratio: 4 / 3;
+  border-radius: 10px; padding: 18px;
+  display: flex; flex-direction: column; gap: 9px; justify-content: flex-end;
+}
+.cmp-line { height: 7px; border-radius: 4px; background: oklch(0.44 0.0112 0); width: 100%; }
+.cmp-line.short { width: 58%; }
+
+.cmp-pick {
+  background: none; border: 1px solid var(--rule); color: var(--dim);
+  padding: 8px; border-radius: 9px; cursor: pointer; font: inherit; font-size: 13px;
+}
+.cmp-pick:hover { color: var(--ink); border-color: oklch(0.46 0.0112 0); }
+
+.cmp-skip {
+  display: block; margin: 20px auto 0; background: none; border: 0;
+  color: var(--faint); cursor: pointer; font: inherit; font-size: 12px;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+.cmp-verdict { border: 1px solid var(--rule); border-radius: 12px; padding: 22px; }
+.cmp-verdict dl { display: grid; grid-template-columns: max-content 1fr; gap: 10px 20px; margin: 0 0 20px; }
+.cmp-verdict dt { color: var(--faint); font-size: 12px; }
+.cmp-verdict dd { margin: 0; color: var(--ink); }
+.cmp-note { color: var(--faint); font-size: 12px; border-inline-start: 2px solid var(--rule); padding-inline-start: 12px; }

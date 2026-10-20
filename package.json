@@ -5,7 +5,8 @@
   "type": "module",
   "description": "A dark UI engine, not a component collection.",
   "scripts": {
-    "rig": "vite --host 0.0.0.0 --port 4000",
+    "dev": "vite --host 0.0.0.0 --port 4000",
+    "rig": "vite --host 0.0.0.0 --port 4001",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

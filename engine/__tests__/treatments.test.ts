@@ -178,6 +178,32 @@ describe('shadow', () => {
     expect(combined).toBeCloseTo(peak, 6);
   });
 
+  it('survives the 8-BIT ALPHA CHANNEL — the medium quantises it, and the bound is stated', () => {
+    // The engine solves an alpha to full precision, but the browser composites in
+    // 8 bits: it rounds the alpha to the nearest 1/255. Measured in Chrome 155 —
+    // an alpha of 0.0456 is serialised as 0.047 (12/255), not 0.0456.
+    //
+    // This is the same class of limit as the hex ladder's 1.07q-1.21q spread: the
+    // medium cannot write the design. The difference is that here it is a BOUNDED
+    // error, and this test states the bound instead of pretending it is zero.
+    const quantise = (a: number) => Math.round(a * 255) / 255;
+
+    let worst = 0;
+    for (let level = 0; level < SIZE; level++) {
+      const host = hexToRgb(LADDER[level]!);
+      const { nearAlpha } = shadowModel(4, host);
+      const q = quantise(nearAlpha);
+      const combined = 1 - (1 - q) * (1 - q);
+      const dropped = (oklchL(host) - oklchL(compositeShadow(combined, host))) / Q;
+      worst = Math.max(worst, Math.abs(dropped - 1));
+    }
+
+    // The error is largest on the LIGHTEST host, because there the alpha is
+    // smallest and 1/255 is a larger fraction of it.
+    expect(worst).toBeLessThan(0.05); // 5% of a quantum
+    expect(worst).toBeGreaterThan(0); // and it is not zero — the test says so
+  });
+
   it('emits a CSS value whose alpha matches the solved peak', () => {
     const host = hexToRgb(LADDER[0]!);
     const css = floatShadow(2, host);
